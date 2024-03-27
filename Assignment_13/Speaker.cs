@@ -15,7 +15,7 @@ namespace BusinessLayer
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
 		public string Email { get; set; }
-		public int? Exp { get; set; }
+		public int? Experience { get; set; }
 		public bool HasBlog { get; set; }
 		public string BlogURL { get; set; }
 		public WebBrowser Browser { get; set; }
@@ -30,7 +30,7 @@ namespace BusinessLayer
 		/// <returns>speakerID</returns>
 		public int? Register(IRepository repository)
 		{
-			ValidateSpeakerDetails();
+			CheckForNullDetails();
 			CheckSpeakerRequirements();
 
 			CalculateRegistrationFee();
@@ -197,7 +197,7 @@ namespace BusinessLayer
 			**/
 		}
 
-		private void ValidateSpeakerDetails()
+		private void CheckForNullDetails()
 		{
 			if(string.IsNullOrWhiteSpace(FirstName))
 				throw new ArgumentNullException(nameof(FirstName),"First Name is required.");
@@ -209,7 +209,7 @@ namespace BusinessLayer
 
 		private void CheckSpeakerRequirements()
 		{
-			if(Exp <= 1 || Exp >= 10 || HasBlog || Certifications.Count > 3 || EmployerIsRecognized())
+			if(Experience <= 1 || Experience >= 10 || HasBlog || Certifications.Count > 3 || EmployerIsRecognized())
 			{
 				if (Sessions == null || Sessions.Count == 0 || !AnySessionApproved())
 					throw new RegistrationFailedException("Speaker doesn't meet registration requirements.");
@@ -240,19 +240,19 @@ namespace BusinessLayer
 
 		private void CalculateRegistrationFee()
 		{
-			if(Exp <= 1)
+			if(Experience <= 1)
 			{
 				RegistrationFee = 500;
 			}
-			else if (Exp >= 2 && Exp <= 3)
+			else if (Experience >= 2 && Experience <= 3)
 			{
 				RegistrationFee = 250;
 			}
-			else if(Exp >= 4 && Exp <= 5)
+			else if(Experience >= 4 && Experience <= 5)
 			{
 				RegistrationFee = 100;
 			}
-			else if(Exp >= 6 && Exp <= 9)
+			else if(Experience >= 6 && Experience <= 9)
 			{
 				RegistrationFee = 50;
 			}
