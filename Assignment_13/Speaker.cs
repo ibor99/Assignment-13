@@ -207,18 +207,31 @@ namespace BusinessLayer
 				throw new ArgumentNullException(nameof(Email), "Email is required.");
 		}
 
-		private void CheckSpeakerRequirements()
-		{
-			if(Experience <= 1 || Experience >= 10 || HasBlog || Certifications.Count > 3 || EmployerIsRecognized())
-			{
-				if (Sessions == null || Sessions.Count == 0 || !AnySessionApproved())
-					throw new RegistrationFailedException("Speaker doesn't meet registration requirements.");
-			}
-			else
-			{
-				throw new RegistrationFailedException("Speaker doesn't meet our arbitrary standards.");
-			}
-		}
+        private void CheckSpeakerRequirements()
+        {
+            var recognizedEmployers = new List<string> { "Microsoft", "Google", "Fog Creek Software", "37Signals" };
+            var badEmailDomains = new List<string> { "aol.com", "hotmail.com", "prodigy.com", "CompuServe.com" };
+            var emailDomain = Email.Split('@').Last();
+
+            bool isSpeakerGood = Experience > 10 || HasBlog || Certifications.Count > 3 || recognizedEmployers.Contains(Employer);
+
+            if (!isSpeakerGood)
+            {
+                isSpeakerGood = !badEmailDomains.Contains(emailDomain) && !(Browser.Name == WebBrowser.BrowserName.InternetExplorer && Browser.MajorVersion < 9);
+            }
+
+            if (isSpeakerGood)
+            {
+                if (Sessions == null || Sessions.Count == 0 || !AnySessionApproved())
+                {
+                    throw new RegistrationFailedException("Can't register speaker with no sessions to present.");
+                }
+            }
+            else
+            {
+                throw new RegistrationFailedException("Speaker doesn't meet our arbitrary and capricious standards.");
+            }
+        }
 
 		private bool EmployerIsRecognized()
 		{
