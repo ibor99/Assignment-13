@@ -10,12 +10,12 @@ namespace BusinessLayer
 	/// <summary>
 	/// Represents a single speaker
 	/// </summary>
-	public class Speaker
+	public class Speakerv1
 	{
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
 		public string Email { get; set; }
-		public int? Experience { get; set; }
+		public int? Exp { get; set; }
 		public bool HasBlog { get; set; }
 		public string BlogURL { get; set; }
 		public WebBrowser Browser { get; set; }
@@ -28,23 +28,8 @@ namespace BusinessLayer
 		/// Register a speaker
 		/// </summary>
 		/// <returns>speakerID</returns>
-		public int? Register(IRepository repository)
+		public int? Register(SpeakerRepositoryv1 repository)
 		{
-			CheckForNullDetails();
-			CheckSpeakerRequirements();
-
-			CalculateRegistrationFee();
-
-			try
-			{
-				return repository.SaveSpeaker(this);
-			}
-			catch(Exception ex) 
-			{
-				throw new RegistrationFailedException("Failed to register speaker.", ex);
-			}
-
-			/**
 			//lets init some vars
 			int? speakerId = null;
 			bool good = false;
@@ -194,81 +179,8 @@ namespace BusinessLayer
 
 			//if we got this far, the speaker is registered.
 			return speakerId;
-			**/
 		}
 
-		private void CheckForNullDetails()
-		{
-			if(string.IsNullOrWhiteSpace(FirstName))
-				throw new ArgumentNullException(nameof(FirstName),"First Name is required.");
-			if (string.IsNullOrWhiteSpace(LastName))
-				throw new ArgumentNullException(nameof(LastName), "Last name is required.");
-			if (string.IsNullOrWhiteSpace(Email))
-				throw new ArgumentNullException(nameof(Email), "Email is required.");
-		}
-
-        private void CheckSpeakerRequirements()
-        {
-            var recognizedEmployers = new List<string> { "Microsoft", "Google", "Fog Creek Software", "37Signals" };
-            var badEmailDomains = new List<string> { "aol.com", "hotmail.com", "prodigy.com", "CompuServe.com" };
-            var emailDomain = Email.Split('@').Last();
-
-            bool isSpeakerGood = Experience > 10 || HasBlog || Certifications.Count > 3 || recognizedEmployers.Contains(Employer);
-
-            if (!isSpeakerGood)
-            {
-                isSpeakerGood = !badEmailDomains.Contains(emailDomain) && !(Browser.Name == WebBrowser.BrowserName.InternetExplorer && Browser.MajorVersion < 9);
-            }
-
-            if (isSpeakerGood)
-            {
-                if (Sessions == null || Sessions.Count == 0 || !AnySessionApproved())
-                {
-                    throw new RegistrationFailedException("Can't register speaker with no sessions to present.");
-                }
-            }
-            else
-            {
-                throw new RegistrationFailedException("Speaker doesn't meet our arbitrary and capricious standards.");
-            }
-        }
-
-		private bool AnySessionApproved()
-		{
-			foreach(var session in Sessions)
-			{
-				var obsoleteTechnologies = new List<string> { "Cobol", "Punch Cards", "Commodore", "VBScript" };
-				if (session.Title.ContainsAny(obsoleteTechnologies) || session.Description.ContainsAny(obsoleteTechnologies))
-					return false;
-			}
-			return true;
-		}
-
-
-		private void CalculateRegistrationFee()
-		{
-			if(Experience <= 1)
-			{
-				RegistrationFee = 500;
-			}
-			else if (Experience >= 2 && Experience <= 3)
-			{
-				RegistrationFee = 250;
-			}
-			else if(Experience >= 4 && Experience <= 5)
-			{
-				RegistrationFee = 100;
-			}
-			else if(Experience >= 6 && Experience <= 9)
-			{
-				RegistrationFee = 50;
-			}
-			else
-			{
-				RegistrationFee = 0;
-			}
-		}
-		/**
 		#region Custom Exceptions
 		public class SpeakerDoesntMeetRequirementsException : Exception
 		{
@@ -289,6 +201,5 @@ namespace BusinessLayer
 			}
 		}
 		#endregion
-		**/
 	}
 }
